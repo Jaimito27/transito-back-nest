@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { HistoricoAsignacion } from 'src/historico-asignacion/entities/historico-asignacion.entity';
+import { Via } from 'src/vias/entities/via.entity';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('agente_transito')
 export class Agente {
@@ -22,4 +24,23 @@ export class Agente {
 
   @Column({ name: 'codigo_secretaria_transito', nullable: false })
   codigoSecretariaTransito: string;
+
+  //Relacion muchos a uno con Via
+  @ManyToOne(() => Via, (via) => via.agentesTransito,{
+    onDelete: 'CASCADE',
+    eager: false,
+    nullable: true
+  })
+  @JoinColumn({name: 'id_via_actual'})
+  viaActual: Via;
+
+
+  //Relacion one a muchos con historicos(bidireccional)
+  @OneToMany(() => HistoricoAsignacion, (historico) => historico.agenteTransito, {
+    cascade: ['insert', 'update', 'remove'],
+   
+    eager: false
+  })
+
+  historialAsignaciones: HistoricoAsignacion[];
 }

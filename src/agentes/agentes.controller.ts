@@ -14,7 +14,7 @@ export class AgentesController {
 
   @Get()
   findAll() {
-    return this.agentesService.findAll();
+    return this.agentesService.findAllAgentes();
   }
 
   @Get(':id')

@@ -1,15 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAgenteDto } from './dto/create-agente.dto';
 import { UpdateAgenteDto } from './dto/update-agente.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Agente } from './entities/agente.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AgentesService {
-  create(createAgenteDto: CreateAgenteDto) {
-    return 'This action adds a new agente de transito';
+  constructor(
+    @InjectRepository(Agente)
+    private readonly agenteRepository: Repository<Agente>,
+  ) {}
+
+  async create(createAgenteDto: CreateAgenteDto) {
+    return await ;
   }
 
-  findAll() {
-    return `This action returns all agentes de transito`;
+  async findAllAgentes() {
+    return await this.agenteRepository.find();
   }
 
   findOne(id: number) {

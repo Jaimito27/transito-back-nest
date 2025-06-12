@@ -20,7 +20,7 @@ export class Agente {
     scale: 2,
     nullable: true,
   })
-  anosExperiencias: string;
+  anosExperiencia: string;
 
   @Column({ name: 'codigo_secretaria_transito', nullable: false })
   codigoSecretariaTransito: string;

@@ -1,13 +1,11 @@
 import { Type } from 'class-transformer';
 import {
+    IsDecimal,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
   IsUUID,
   Matches,
-  Max,
-  Min,
 } from 'class-validator';
 
 export class CreateAgenteDto {
@@ -24,11 +22,9 @@ export class CreateAgenteDto {
   codigo: string;
 
   @IsOptional()
-  @Type(() => Number)
-  @IsNumber({}, { message: 'Años de experiencia debe ser un número' })
-  @Min(0, { message: 'Años de experencia no puede ser negativo' })
-  @Max(999.99, { message: 'Años de experiencia no puede exceder 999.99' })
-  anosExperiencia?: number;
+  @IsString()
+  @IsDecimal({ decimal_digits: '0,2' }, { message: 'Años de experiencia debe ser un número decimal con hasta 2 decimales.' })
+  anosExperiencia?: string;
 
   @IsOptional()
   @IsString()
@@ -37,5 +33,5 @@ export class CreateAgenteDto {
 
   @IsOptional()
   @IsUUID('4', { message: 'Debe ser un codigo de via válido' })
-  viaActual?: string;
+  idViaActual?: string;
 }

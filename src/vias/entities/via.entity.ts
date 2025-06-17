@@ -1,6 +1,6 @@
 import { Agente } from 'src/agentes/entities/agente.entity';
 import { HistoricoAsignacion } from 'src/historico-asignacion/entities/historico-asignacion.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('via')
 export class Via {
@@ -16,6 +16,9 @@ export class Via {
   @Column({ name: 'numero', nullable: false })
   numero: number;
 
+  @DeleteDateColumn()
+  deletedAt: Date | null;
+
   @Column({
     name: 'nivel_congestion',
     nullable: false,
@@ -26,7 +29,7 @@ export class Via {
   nivelCongestion: string;
 
   //Relacion one to many
-  @OneToMany(()=> Agente, (agente) => agente.viaActual, {
+  @OneToMany(() => Agente, (agente) => agente.viaActual, {
     cascade: ['insert', 'update', 'remove'], //propaga operaciones como insertar, eliminar, actualizar
     eager: false//carga perezosa
   })

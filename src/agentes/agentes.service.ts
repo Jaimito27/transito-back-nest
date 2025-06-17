@@ -11,6 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Agente } from './entities/agente.entity';
 import { Repository } from 'typeorm';
 import { Via } from 'src/vias/entities/via.entity';
+import { agent } from 'supertest';
 
 @Injectable()
 export class AgentesService {
@@ -20,7 +21,7 @@ export class AgentesService {
 
     @InjectRepository(Via)
     private readonly viaRepository: Repository<Via>,
-  ) {}
+  ) { }
 
   async create(createAgenteDto: CreateAgenteDto): Promise<Agente> {
     try {
@@ -66,15 +67,89 @@ export class AgentesService {
     return await this.agenteRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} agente`;
+  async findOne(id: string) {
+
+    const agenteEncontrado = await this.agenteRepository.findOneBy({ id });
+
+    try {
+      if (!agenteEncontrado) {
+        throw new NotFoundException(`Agente con ID ${id} no encontrado`);
+      }
+      return await agenteEncontrado;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      console.error('Error inesperado al buscar agente:', error);
+      throw new InternalServerErrorException(
+        'Ha ocurrido un error inesperado al buscar el agente.',
+      );
+    }
   }
 
-  update(id: number, updateAgenteDto: UpdateAgenteDto) {
-    return `This action updates a #${id} agente`;
+  async update(id: string, updateAgenteDto: UpdateAgenteDto) {
+    try{
+      const agenteEncontrado = await this.agenteRepository.findOneBy({id})
+      if (!agenteEncontrado) {
+        throw new NotFoundException(`Agente con ID ${id} no encontrado`);
+      }else{
+        //actualizamos los campos del agente
+        Object.assign(agenteEncontrado, updateAgenteDto);
+
+        //si se proporciona via actual, manejar la relacon
+        if (updateAgenteDto.idViaActual) {
+          //cargamos la entidad para verificar que exista y tener el objeto por si necesita mas adelante
+          const viaExistente = await this.viaRepository.findOne({
+            where: { id: updateAgenteDto.idViaActual },
+          });
+          if (!viaExistente) {
+            //si la via no existe se lanza una excepcion
+            throw new NotFoundException(`La via seleccionada no existe`);
+          }
+          agenteEncontrado.viaActual = viaExistente; // si existe, se asignda
+        } else {
+          agenteEncontrado.viaActual = null; // si no se proporciona, se quita la relacion
+        }
+
+        return await this.agenteRepository.save(agenteEncontrado);
+      }
+    }catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      console.error('Error inesperado al actualizar agente:', error);
+      throw new InternalServerErrorException(
+        'Ha ocurrido un error inesperado al actualizar el agente.',
+      );
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} agente`;
+  async remove(id: string) {
+
+    try {
+      const agenteEncontrado = await this.agenteRepository.findOneBy({ id });
+      if (!agenteEncontrado) {
+        throw new NotFoundException(`Agente con ID ${id} no encontrado`);
+      }
+
+      if (agenteEncontrado.viaActual) {
+        //quitar la relacion de la via que tenga asignada en el momento
+        agenteEncontrado.viaActual = null;
+        //em cambio persiste
+        await this.agenteRepository.save(agenteEncontrado)
+      }
+
+      await this.agenteRepository.softRemove(agenteEncontrado); //softRemove marca el agente como eliminado sin borrarlo físicamente de la base de datos
+
+      return { message: `Agente con ID ${id} eliminado correctamente` };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      console.error('Error inesperado al eliminar agente:', error);
+      throw new InternalServerErrorException(
+        'Ha ocurrido un error inesperado al eliminar el agente.',
+      );
+    }
   }
 }

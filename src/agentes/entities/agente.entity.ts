@@ -1,6 +1,6 @@
 import { HistoricoAsignacion } from 'src/historico-asignacion/entities/historico-asignacion.entity';
 import { Via } from 'src/vias/entities/via.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('agente_transito')
 export class Agente {
@@ -12,6 +12,9 @@ export class Agente {
 
   @Column({ name: 'codigo', unique: true, nullable: false })
   codigo: string;
+
+  @DeleteDateColumn()
+  deletedAt: Date | null;
 
   @Column({
     name: 'anos_experiencia',
@@ -26,19 +29,19 @@ export class Agente {
   codigoSecretariaTransito: string;
 
   //Relacion muchos a uno con Via
-  @ManyToOne(() => Via, (via) => via.agentesTransito,{
+  @ManyToOne(() => Via, (via) => via.agentesTransito, {
     onDelete: 'CASCADE',
     eager: false,
     nullable: true
   })
-  @JoinColumn({name: 'id_via_actual'})
-  viaActual: Via;
+  @JoinColumn({ name: 'id_via_actual' })
+  viaActual: Via | null;
 
 
   //Relacion one a muchos con historicos(bidireccional)
   @OneToMany(() => HistoricoAsignacion, (historico) => historico.agenteTransito, {
     cascade: ['insert', 'update', 'remove'],
-   
+
     eager: false
   })
 

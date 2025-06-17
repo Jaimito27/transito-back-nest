@@ -14,7 +14,7 @@ export class ViasController {
 
   @Get()
   findAll() {
-    return this.viasService.findAll();
+    return this.viasService.findAllVias();
   }
 
   @Get(':id')

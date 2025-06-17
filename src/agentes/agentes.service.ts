@@ -56,7 +56,6 @@ export class AgentesService {
         throw error;
       }
 
-      console.error('Error inesperado al crear agente:', error);
       throw new InternalServerErrorException(
         'Ha ocurrido un error inesperado al crear el agente.',
       );

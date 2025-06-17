@@ -13,7 +13,7 @@ export class Via {
   @Column({ name: 'es_calle_o_carrera', nullable: false })
   esCalleOCarrera: string;
 
-  @Column({ name: 'numero', nullable: false })
+  @Column({ name: 'numero', nullable: false, unique: true })
   numero: number;
 
   @DeleteDateColumn()

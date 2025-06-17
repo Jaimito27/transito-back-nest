@@ -32,6 +32,6 @@ export class CreateAgenteDto {
   codigoSecretariaTransito?: string;
 
   @IsOptional()
-  @IsUUID('4', { message: 'Debe ser un codigo de via válido' })
+  @IsUUID('4')
   idViaActual?: string;
 }

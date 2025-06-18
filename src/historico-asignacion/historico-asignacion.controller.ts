@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { HistoricoAsignacionService } from './historico-asignacion.service';
 import { CreateHistoricoAsignacionDto } from './dto/create-historico-asignacion.dto';
 import { UpdateHistoricoAsignacionDto } from './dto/update-historico-asignacion.dto';
@@ -12,9 +12,12 @@ export class HistoricoAsignacionController {
     return this.historicoAsignacionService.create(createHistoricoAsignacionDto);
   }
 
-  @Get()
-  findAll() {
-    return this.historicoAsignacionService.findAll();
+  @Get('paginated')
+  async findAllPaginatedHistoricos(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10, //los querys leen los parametros y si no se envian, toma lo que están por defecto en la funcion del servicio
+  ) {
+    return await this.historicoAsignacionService.findAllPaginated(page, limit);
   }
 
   @Get(':id')

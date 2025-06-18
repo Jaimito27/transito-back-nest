@@ -9,9 +9,10 @@ import { CreateAgenteDto } from './dto/create-agente.dto';
 import { UpdateAgenteDto } from './dto/update-agente.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Agente } from './entities/agente.entity';
-import { Repository } from 'typeorm';
+import { ObjectId, Repository } from 'typeorm';
 import { Via } from 'src/vias/entities/via.entity';
 import { agent } from 'supertest';
+import { HistoricoAsignacion } from 'src/historico-asignacion/entities/historico-asignacion.entity';
 
 @Injectable()
 export class AgentesService {
@@ -21,6 +22,9 @@ export class AgentesService {
 
     @InjectRepository(Via)
     private readonly viaRepository: Repository<Via>,
+
+    @InjectRepository(HistoricoAsignacion)
+    private readonly historicoRepository: Repository<HistoricoAsignacion>
   ) { }
 
   async create(createAgenteDto: CreateAgenteDto): Promise<Agente> {
@@ -89,27 +93,45 @@ export class AgentesService {
       const agenteEncontrado = await this.agenteRepository.findOneBy({ id })
       if (!agenteEncontrado) {
         throw new NotFoundException(`Agente con ID ${id} no encontrado`);
-      } else {
-        //actualizamos los campos del agente
-        Object.assign(agenteEncontrado, updateAgenteDto);
-
-        //si se proporciona via actual, manejar la relacon
-        if (updateAgenteDto.idViaActual) {
-          //cargamos la entidad para verificar que exista y tener el objeto por si necesita mas adelante
-          const viaExistente = await this.viaRepository.findOne({
-            where: { id: updateAgenteDto.idViaActual },
-          });
-          if (!viaExistente) {
-            //si la via no existe se lanza una excepcion
-            throw new NotFoundException(`La via seleccionada no existe`);
-          }
-          agenteEncontrado.viaActual = viaExistente; // si existe, se asignda
-        } else {
-          agenteEncontrado.viaActual = null; // si no se proporciona, se quita la relacion
-        }
-
-        return await this.agenteRepository.save(agenteEncontrado);
       }
+
+      const { idViaActual, ...restoCampos } = updateAgenteDto; //extrae la via del resto de datos
+      Object.assign(agenteEncontrado, restoCampos)
+      return await this.agenteRepository.save(agenteEncontrado)
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      console.error('Error inesperado al actualizar agente:', error);
+      throw new InternalServerErrorException(
+        'Ha ocurrido un error inesperado al actualizar el agente.',
+      );
+    }
+  }
+
+  async asignarViaAgente(idVia: string, idAgente: string, usuarioAsignador: string) {
+    try {
+      const agente = await this.agenteRepository.findOne({ where: { id: idAgente }, relations: ['viaActual'] })
+      if (!agente) {
+        throw new NotFoundException("Agente no encontrado")
+      }
+
+      const nuevaVia = await this.viaRepository.findOne({ where: { id: idVia } })
+      if (!nuevaVia) {
+        throw new NotFoundException("Via no encontrada")
+      }
+      // se asigna al historico
+      await this.historicoRepository.save({
+        fechaAsignacion: new Date(),
+        usuarioAsignador,
+        agenteTransito: agente,
+        viaAsignada: nuevaVia
+      })
+
+      //actualizar la via
+
+      agente.viaActual = nuevaVia
+      return await this.agenteRepository.save(agente)
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;

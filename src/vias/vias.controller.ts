@@ -1,11 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ViasService } from './vias.service';
 import { CreateViaDto } from './dto/create-via.dto';
 import { UpdateViaDto } from './dto/update-via.dto';
 
 @Controller('vias')
 export class ViasController {
-  constructor(private readonly viasService: ViasService) {}
+  constructor(private readonly viasService: ViasService) { }
 
   @Post()
   create(@Body() createViaDto: CreateViaDto) {
@@ -13,8 +13,11 @@ export class ViasController {
   }
 
   @Get()
-  findAll() {
-    return this.viasService.findAllVias();
+  async findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    return await this.viasService.findAllVias(page, limit);
   }
 
   @Get(':id')

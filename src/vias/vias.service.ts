@@ -44,8 +44,24 @@ export class ViasService {
     }
   }
 
-  async findAllVias() {
-    return await this.viaRepository.find();
+  async findAllVias(page = 1, limit = 10) {
+    try {
+      const [results, total] = await this.viaRepository.findAndCount({
+        skip: (page - 1) * limit, //salta los registros de la apgina anterior, es decir, si estoy en la pagina 3, me tare los registro del 20 en adelante, dado que el lmite es 10
+        take: limit,
+      })
+      return {
+        data: results,
+        total,
+        page,
+        lastPage: Math.ceil(total / limit)
+      }
+    } catch (error) {
+      console.error('Error al obtener los agentes paginados:', error);
+      throw new InternalServerErrorException(
+        'Ha ocurrido un error al obtener los agentes paginado.'
+      );
+    }
   }
 
   async findOne(id: string) {

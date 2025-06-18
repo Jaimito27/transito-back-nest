@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ViasModule } from './vias/vias.module';
 import { HistoricoAsignacionModule } from './historico-asignacion/historico-asignacion.module';
 import { AuthModule } from './auth/auth.module';
+import { UsuariosModule } from './usuarios/usuarios.module';
 
 @Module({
   imports: [
@@ -28,6 +29,8 @@ import { AuthModule } from './auth/auth.module';
     HistoricoAsignacionModule,
 
     AuthModule,
+
+    UsuariosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

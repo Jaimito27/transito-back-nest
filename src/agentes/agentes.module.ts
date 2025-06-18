@@ -7,7 +7,7 @@ import { Via } from 'src/vias/entities/via.entity';
 import { HistoricoAsignacion } from 'src/historico-asignacion/entities/historico-asignacion.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Agente, Via, HistoricoAsignacion])],
+  imports: [TypeOrmModule.forFeature([Agente, Via, HistoricoAsignacion]),],
   controllers: [AgentesController],
   providers: [AgentesService],
 })

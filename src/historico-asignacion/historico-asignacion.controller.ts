@@ -12,7 +12,7 @@ export class HistoricoAsignacionController {
     return this.historicoAsignacionService.create(createHistoricoAsignacionDto);
   }
 
-  @Get('paginated')
+  @Get()
   async findAllPaginatedHistoricos(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10, //los querys leen los parametros y si no se envian, toma lo que están por defecto en la funcion del servicio

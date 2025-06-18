@@ -47,18 +47,25 @@ export class HistoricoAsignacionService {
   }
 
   async findAllPaginated(page = 1, limit = 10) {
-    const [results, total] = await this.historicoAsignacionRepository.findAndCount({ //esta fucnion tare como resultados, la data y el # total de registros
-      relations: ['agenteTransito', 'viaAsignada'], //relaciones
-      skip: (page - 1) * limit, //salta los registros de la apgina anterior, es decir, si estoy en la pagina 3, me tare los registro del 20 en adelante, dado que el lmite es 10
-      take: limit, //cuantos registros traer
-      order: {fechaAsignacion: 'DESC'} //segun fecha de asignación trae el mas reciente
-    });
+    try {
+      const [results, total] = await this.historicoAsignacionRepository.findAndCount({ //esta fucnion tare como resultados, la data y el # total de registros
+        relations: ['agenteTransito', 'viaAsignada'], //relaciones
+        skip: (page - 1) * limit, //salta los registros de la apgina anterior, es decir, si estoy en la pagina 3, me tare los registro del 20 en adelante, dado que el lmite es 10
+        take: limit, //cuantos registros traer
+        order: { fechaAsignacion: 'DESC' } //segun fecha de asignación trae el mas reciente
+      });
 
-    return{
-      data: results,
-      total,
-      page,
-      lastPage: Math.ceil(total/limit),
+      return {
+        data: results,
+        total,
+        page,
+        lastPage: Math.ceil(total / limit),
+      }
+    } catch (error) {
+      console.error('Error al obtener el histórico paginado:', error);
+      throw new InternalServerErrorException(
+        'Ha ocurrido un error al obtener el histórico paginado.'
+      );
     }
   }
 

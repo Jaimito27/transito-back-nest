@@ -19,16 +19,16 @@ export class ViasController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.viasService.findOne(+id);
+    return this.viasService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateViaDto: UpdateViaDto) {
-    return this.viasService.update(+id, updateViaDto);
+    return this.viasService.update(id, updateViaDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.viasService.remove(+id);
+    return this.viasService.remove(id);
   }
 }

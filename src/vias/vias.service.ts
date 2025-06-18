@@ -7,22 +7,22 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class ViasService {
-constructor(
-  @InjectRepository(Via)
-  private readonly viaRepository: Repository<Via>,
-) {}
+  constructor(
+    @InjectRepository(Via)
+    private readonly viaRepository: Repository<Via>,
+  ) { }
 
   async create(createViaDto: CreateViaDto): Promise<Via> {
-    try{
-      const viaExistente = await this.viaRepository.findOne({where: { numero: createViaDto.numero }});
+    try {
+      const viaExistente = await this.viaRepository.findOne({ where: { numero: createViaDto.numero } });
 
-      if(viaExistente){
+      if (viaExistente) {
         throw new ConflictException(`La vía con el número ${createViaDto.numero} ya existe`);
       }
 
       const nuevaVia = await this.viaRepository.create(createViaDto);
       return await this.viaRepository.save(nuevaVia);
-    }catch(error){
+    } catch (error) {
       if (error instanceof ConflictException) {
         throw error;
       }
@@ -30,11 +30,11 @@ constructor(
       // Loggear el error completo para depuración
       console.error('Error inesperado al crear la vía:', error);
 
-      
+
       if (error.code === 'ER_DUP_ENTRY' || error.errno === 1062) {
-          throw new ConflictException(
-            `Ya existe una vía con el mismo número. Detalles: ${error.message}`
-          );
+        throw new ConflictException(
+          `Ya existe una vía con el mismo número. Detalles: ${error.message}`
+        );
       }
 
       // Para cualquier otro error no manejado, lanzar una excepción genérica de servidor
@@ -48,15 +48,67 @@ constructor(
     return await this.viaRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} via`;
+  async findOne(id: string) {
+
+    try {
+      const viaEncontrada = await this.viaRepository.findOneBy({ id })
+
+      if (!viaEncontrada) {
+        throw new NotFoundException("La via no fue encontrada")
+      }
+      return await viaEncontrada;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      console.error('Error inesperado al buscar via:', error);
+      throw new InternalServerErrorException(
+        'Ha ocurrido un error inesperado al buscar el via.',
+      );
+    }
   }
 
-  update(id: number, updateViaDto: UpdateViaDto) {
-    return `This action updates a #${id} via`;
+  async update(id: string, updateViaDto: UpdateViaDto) {
+    try {
+      const viaEncontrada = await this.viaRepository.findOneBy({ id })
+      if (!viaEncontrada) {
+        throw new NotFoundException("La via no fue encontrada, por ende no podrá editarse")
+      }
+      Object.assign(viaEncontrada, updateViaDto)
+
+      return await this.viaRepository.save(viaEncontrada)
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      console.error('Error inesperado al actualizar via:', error);
+      throw new InternalServerErrorException(
+        'Ha ocurrido un error inesperado al actualizar la via.',
+      );
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} via`;
+  async remove(id: string) {
+    try {
+      const viaEncontrada = await this.viaRepository.findOneBy({ id })
+      if (!viaEncontrada) {
+        throw new NotFoundException("La via no fue encontrada")
+      }
+      if (viaEncontrada.agentesTransito) {
+        viaEncontrada.agentesTransito = null;
+        await this.viaRepository.save(viaEncontrada)
+      }
+      await this.viaRepository.softRemove(viaEncontrada);
+
+      return { message: `Via con ID ${id} eliminado correctamente` };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      console.error('Error inesperado al eliminar via:', error);
+      throw new InternalServerErrorException(
+        'Ha ocurrido un error inesperado al eliminar el via.',
+      );
+    }
   }
 }

@@ -33,12 +33,12 @@ export class Via {
     cascade: ['insert', 'update', 'remove'], //propaga operaciones como insertar, eliminar, actualizar
     eager: false//carga perezosa
   })
-  agentesTransito: Agente[]
+  agentesTransito: Agente[] | null
 
   //realacion one yo many con historico
   @OneToMany(() => HistoricoAsignacion, (historico) => historico.viaAsignada, {
     cascade: ['insert', 'update', 'remove'],
     eager: false
   })
-  historialAsignaciones: HistoricoAsignacion[];
+  historialAsignaciones: HistoricoAsignacion[] | null;
 }

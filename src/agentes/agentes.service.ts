@@ -67,10 +67,8 @@ export class AgentesService {
   }
 
   async findOne(id: string) {
-
-    const agenteEncontrado = await this.agenteRepository.findOneBy({ id });
-
     try {
+      const agenteEncontrado = await this.agenteRepository.findOneBy({ id });
       if (!agenteEncontrado) {
         throw new NotFoundException(`Agente con ID ${id} no encontrado`);
       }
@@ -87,11 +85,11 @@ export class AgentesService {
   }
 
   async update(id: string, updateAgenteDto: UpdateAgenteDto) {
-    try{
-      const agenteEncontrado = await this.agenteRepository.findOneBy({id})
+    try {
+      const agenteEncontrado = await this.agenteRepository.findOneBy({ id })
       if (!agenteEncontrado) {
         throw new NotFoundException(`Agente con ID ${id} no encontrado`);
-      }else{
+      } else {
         //actualizamos los campos del agente
         Object.assign(agenteEncontrado, updateAgenteDto);
 
@@ -112,7 +110,7 @@ export class AgentesService {
 
         return await this.agenteRepository.save(agenteEncontrado);
       }
-    }catch (error) {
+    } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
       }

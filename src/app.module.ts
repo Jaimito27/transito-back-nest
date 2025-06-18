@@ -5,6 +5,7 @@ import { AgentesModule } from './agentes/agentes.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ViasModule } from './vias/vias.module';
 import { HistoricoAsignacionModule } from './historico-asignacion/historico-asignacion.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -25,6 +26,8 @@ import { HistoricoAsignacionModule } from './historico-asignacion/historico-asig
     ViasModule,
 
     HistoricoAsignacionModule,
+
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

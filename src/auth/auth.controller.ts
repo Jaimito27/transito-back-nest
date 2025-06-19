@@ -3,11 +3,23 @@ import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { LoginDto } from './dto/login-auth.dto';
+import { CreateUsuarioDto } from 'src/usuarios/dto/create-usuario.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
+
+  @Post('register')
+  async register(@Body() createUsuarioDto: CreateUsuarioDto) {
+    const usuario = await this.authService.registrarUsuario(createUsuarioDto)
+    const {password, ...resultado} = usuario
+    
+    return {
+      message: "Usuario creado exitosamente",
+      usuario: resultado
+    };
+  }
 
 
   @Post('login')

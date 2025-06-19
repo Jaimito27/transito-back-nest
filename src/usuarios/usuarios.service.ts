@@ -4,8 +4,6 @@ import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Usuario } from './entities/usuario.entity';
 import { Repository } from 'typeorm';
-import { RouteInfoPathExtractor } from '@nestjs/core/middleware/route-info-path-extractor';
-import { userInfo } from 'os';
 import { PaginatedUsuarios } from './interfaces/paginated-usuarios.interface';
 
 @Injectable()
